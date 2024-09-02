@@ -1,3 +1,5 @@
+#include "co_task.h"
+#include "timers.h"
 #include <algorithm>
 #include <assert.h>
 #include <coroutine>
@@ -5,9 +7,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <vector>
 #include <string_view>
-#include "timers.h"
+#include <vector>
 
 static int currentFrameIdx = 0;
 static float currentTime = 0.0f;
@@ -15,36 +16,9 @@ constexpr float simStepSeconds = 0.1f;
 constexpr float simDurationSeconds = 10.0f;
 
 void log(std::string_view category, std::string_view message) {
-  std::cout << "[" << currentTime << "s][" << category << "] " << message << std::endl;
+  std::cout << "[" << currentTime << "s][" << category << "] " << message
+            << std::endl;
 }
-
-struct CoTask {
-
-  struct CoPromise {
-    CoTask get_return_object() { return {}; }
-    std::suspend_never initial_suspend() { return {}; }
-    std::suspend_always final_suspend() noexcept { return {}; }
-    void return_void() {}
-    void unhandled_exception() {
-    } // TODO: Do I need this if I am not using exceptions?
-  };
-
-  using promise_type = CoPromise;
-  using handle_type = std::coroutine_handle<promise_type>;
-};
-
-struct CoWait {
-  float m_DurationSeconds = 0.0f;
-
-  CoWait(float durationSeconds) : m_DurationSeconds(durationSeconds) {}
-
-  bool await_ready() { return false; }
-  bool await_resume() { return false; }
-
-  void await_suspend(CoTask::handle_type handle) {
-    Timers::add(m_DurationSeconds, [handle]() { handle.resume(); });
-  }
-};
 
 CoTask co_faded_teleport(float fadeSeconds) {
   log("FadedTeleport", "Fade out");
