@@ -18,6 +18,6 @@ struct CoWait {
 
   CoWait(float durationSeconds);
   bool await_ready();
-  bool await_resume();
+  void await_resume();
   void await_suspend(CoTask::handle_type handle);
 };

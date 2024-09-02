@@ -17,7 +17,7 @@ CoWait::CoWait(float durationSeconds) : m_DurationSeconds(durationSeconds) {}
 
 bool CoWait::await_ready() { return false; }
 
-bool CoWait::await_resume() { return false; }
+void CoWait::await_resume() { }
 
 void CoWait::await_suspend(CoTask::handle_type handle) {
   Timers::add(m_DurationSeconds, [handle]() { handle.resume(); });
