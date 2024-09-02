@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include "timers.h"
 
 static int currentFrameIdx = 0;
 static float currentTime = 0.0f;
@@ -16,42 +17,6 @@ constexpr float simDurationSeconds = 10.0f;
 void log(std::string_view category, std::string_view message) {
   std::cout << "[" << currentTime << "s][" << category << "] " << message << std::endl;
 }
-
-struct Timers {
-
-  using callback_type = std::function<void()>;
-
-  struct Timer {
-    float m_RemainingSeconds = 0.0f;
-    callback_type m_Callback = nullptr;
-
-    bool is_done() const { return m_RemainingSeconds <= 0.0f; }
-  };
-
-  static std::vector<Timer> s_Timers;
-
-  static void add(float durationSeconds, callback_type callback) {
-    s_Timers.push_back(
-        Timer{.m_RemainingSeconds = durationSeconds, .m_Callback = callback});
-  }
-
-  static void update(float deltaSeconds) {
-    for (auto &timer : s_Timers) {
-      timer.m_RemainingSeconds -= deltaSeconds;
-
-      if (timer.is_done()) {
-        timer.m_Callback();
-      }
-    }
-
-    s_Timers.erase(
-        std::remove_if(s_Timers.begin(), s_Timers.end(),
-                       [](const Timer &timer) { return timer.is_done(); }),
-        s_Timers.end());
-  }
-};
-
-std::vector<Timers::Timer> Timers::s_Timers{};
 
 struct CoTask {
 
