@@ -1,14 +1,7 @@
 #include "co_task.h"
 #include "timers.h"
-#include <algorithm>
-#include <assert.h>
-#include <coroutine>
-#include <functional>
 #include <iostream>
-#include <memory>
-#include <string>
 #include <string_view>
-#include <vector>
 
 static int currentFrameIdx = 0;
 static float currentTime = 0.0f;
