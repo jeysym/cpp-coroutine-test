@@ -53,12 +53,10 @@ CoTask co_fade_in(float duration) {
 
 CoTask co_faded_teleport(float fadeSeconds) {
   log("FadedTeleport", "Fade out");
-  co_fade_out(fadeSeconds); // TODO: Actually await this.
-  co_await CoWait{fadeSeconds};
+  co_await co_fade_out(fadeSeconds);
   log("FadedTeleport", "Teleport");
   log("FadedTeleport", "Fade in");
-  co_fade_in(fadeSeconds); // TODO: Actually await this.
-  co_await CoWait{fadeSeconds};
+  co_await co_fade_in(fadeSeconds);
   log("FadedTeleport", "Done");
   co_return;
 }

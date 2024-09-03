@@ -8,10 +8,18 @@ struct CoTask {
     std::suspend_always final_suspend() noexcept;
     void return_void();
     void unhandled_exception(); 
+
+    std::coroutine_handle<> m_Continue = nullptr;
   };
 
   using promise_type = CoPromise;
   using handle_type = std::coroutine_handle<promise_type>;
+
+  bool await_ready();
+  void await_resume();
+  void await_suspend(handle_type handle);
+
+  handle_type m_Handle = nullptr;
 };
 
 struct CoWait {
