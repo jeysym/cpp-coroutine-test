@@ -22,3 +22,9 @@ struct CoWait {
   void await_resume();
   void await_suspend(CoTask::handle_type handle);
 };
+
+struct CoWaitFrame {
+  bool await_ready();
+  void await_resume();
+  void await_suspend(CoTask::handle_type handle);
+};

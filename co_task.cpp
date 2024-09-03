@@ -22,3 +22,14 @@ void CoWait::await_resume() { }
 void CoWait::await_suspend(CoTask::handle_type handle) {
   Timers::add(m_DurationSeconds, [handle]() { handle.resume(); });
 }
+
+bool CoWaitFrame::await_ready() { return false; }
+
+void CoWaitFrame::await_resume() { 
+  // TODO: Return duration of the time waited here.
+}
+
+void CoWaitFrame::await_suspend(CoTask::handle_type handle) {
+  // TODO: This is just a hack, do this properly.
+  Timers::add(0.00001f, [handle]() { handle.resume(); });
+}

@@ -5,6 +5,7 @@
 
 static int currentFrameIdx = 0;
 static float currentTime = 0.0f;
+static float currentFadeRatio = 0.0f;
 constexpr float simStepSeconds = 0.1f;
 constexpr float simDurationSeconds = 10.0f;
 
@@ -13,11 +14,49 @@ void log(std::string_view category, std::string_view message) {
             << std::endl;
 }
 
+void log_fade_ratio(std::string_view category) {
+  std::cout << "[" << currentTime << "s][" << category
+            << "] Current fade ratio: " << currentFadeRatio << std::endl;
+}
+
+CoTask co_fade_out(float duration) {
+  const float fadeStartTime = currentTime;
+  const float fadeEndTime = currentTime + duration;
+
+  while (currentTime <= fadeEndTime) {
+    currentFadeRatio = (currentTime - fadeStartTime) / duration;
+    log_fade_ratio("Fade Out");
+    co_await CoWaitFrame{};
+  }
+
+  currentFadeRatio = 1.0f;
+  log_fade_ratio("Fade Out");
+
+  co_return;
+}
+
+CoTask co_fade_in(float duration) {
+  const float fadeEndTime = currentTime + duration;
+
+  while (currentTime <= fadeEndTime) {
+    currentFadeRatio = (fadeEndTime - currentTime) / duration;
+    log_fade_ratio("Fade In");
+    co_await CoWaitFrame{};
+  }
+
+  currentFadeRatio = 0.0f;
+  log_fade_ratio("Fade In");
+
+  co_return;
+}
+
 CoTask co_faded_teleport(float fadeSeconds) {
   log("FadedTeleport", "Fade out");
+  co_fade_out(fadeSeconds); // TODO: Actually await this.
   co_await CoWait{fadeSeconds};
   log("FadedTeleport", "Teleport");
   log("FadedTeleport", "Fade in");
+  co_fade_in(fadeSeconds); // TODO: Actually await this.
   co_await CoWait{fadeSeconds};
   log("FadedTeleport", "Done");
   co_return;
