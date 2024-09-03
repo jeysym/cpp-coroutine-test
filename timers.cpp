@@ -1,4 +1,4 @@
-#include "timers.h"
+#include "timers.hpp"
 #include <algorithm>
 
 std::vector<Timers::Timer> Timers::s_Timers{};

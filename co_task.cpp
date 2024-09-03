@@ -1,5 +1,5 @@
-#include "co_task.h"
-#include "timers.h"
+#include "co_task.hpp"
+#include "timers.hpp"
 
 CoTask CoTask::CoPromise::get_return_object() { return {}; }
 
