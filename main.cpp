@@ -1,6 +1,7 @@
 #include "co_task.hpp"
 #include "timers.hpp"
 #include <iostream>
+#include <iomanip>
 #include <string_view>
 
 static int currentFrameIdx = 0;
@@ -70,6 +71,8 @@ void update(float deltaSeconds) {
 }
 
 int main() {
+  std::cout << std::fixed << std::setprecision(2);
+  
   Timers::add(2.0f, []() { log("Timer", "2 seconds"); });
   Timers::add(1.0f, []() { log("Timer", "1 second"); });
   Timers::add(8.0f, []() { log("Timer", "8 seconds"); });
