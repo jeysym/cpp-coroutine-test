@@ -68,7 +68,7 @@ void update(float deltaSeconds) {
   Timers::update(deltaSeconds);
 }
 
-int main() {
+int old_main() {
   std::cout << std::fixed << std::setprecision(2);
   
   Timers::add(2.0f, []() { log("Timer", "2 seconds"); });
@@ -84,4 +84,5 @@ int main() {
       break;
   }
   std::cout << "==== Loop End ====" << std::endl;
+  return 0;
 }
