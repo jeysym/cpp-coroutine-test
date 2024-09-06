@@ -5,6 +5,7 @@
 #include <GL/glu.h>
 #include <GL/glx.h>
 
+#include <ctime>
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
@@ -12,6 +13,7 @@
 
 #include "timers.hpp"
 #include "co_task.hpp"
+#include "game.hpp"
 
 static Display *g_Display = nullptr;
 static Window g_RootWindow;
@@ -24,8 +26,13 @@ static GLXContext g_GLContext;
 static XWindowAttributes g_WindowAttributes;
 
 void gl_render_test_quad() {
-  glClearColor(1.0, 1.0, 1.0, 1.0);
+  float fadeRatio = g_State.m_FadeRatio;
+  Vec2 playerPos = g_State.m_PlayerPosition;
+
+  glClearColor(fadeRatio, fadeRatio, fadeRatio, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // TODO: Do not use immediate mode OpenGL.
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -37,13 +44,13 @@ void gl_render_test_quad() {
 
   glBegin(GL_QUADS);
   glColor3f(1., 0., 0.);
-  glVertex3f(-.75, -.75, 0.);
+  glVertex3f(-.75 + playerPos.x, -.75 + playerPos.y, 0.);
   glColor3f(0., 1., 0.);
-  glVertex3f(.75, -.75, 0.);
+  glVertex3f(.75 + playerPos.x, -.75 + playerPos.y, 0.);
   glColor3f(0., 0., 1.);
-  glVertex3f(.75, .75, 0.);
+  glVertex3f(.75 + playerPos.x, .75 + playerPos.y, 0.);
   glColor3f(1., 1., 0.);
-  glVertex3f(-.75, .75, 0.);
+  glVertex3f(-.75 + playerPos.x, .75 + playerPos.y, 0.);
   glEnd();
 }
 
@@ -102,23 +109,44 @@ void gl_init() {
 int main(int arg_count, char** args) {
   x11_init("JEY WINDOW");
   gl_init();
+  Game::init();
   
-  while (true) {
-    XEvent event;
-    XNextEvent(g_Display, &event);
+  timespec now;
+  if (clock_gettime(CLOCK_MONOTONIC, &now)) {
+    std::cerr << "Call to 'clock_gettime' has failed." << std::endl;
+    std::exit(0);
+  }
 
-    if (event.type == Expose) {
-      XGetWindowAttributes(g_Display, g_Window, &g_WindowAttributes);
-      glViewport(0, 0, g_WindowAttributes.width, g_WindowAttributes.height);
-      gl_render_test_quad();
-      glXSwapBuffers(g_Display, g_Window);
-    }
-    else if (event.type == KeyPress) {
-      glXMakeCurrent(g_Display, None, nullptr);
-      glXDestroyContext(g_Display, g_GLContext);
-      XDestroyWindow(g_Display, g_Window);
-      XCloseDisplay(g_Display);
+  while (true) {
+    timespec prev = now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now)) {
+      std::cerr << "Call to 'clock_gettime' has failed." << std::endl;
       std::exit(0);
     }
+
+    const double secondsPart = (double)(now.tv_sec - prev.tv_sec);
+    const double nanosecondPart = (double)(now.tv_nsec - prev.tv_nsec) / 1'000'000'000.f;
+    const double elapsedSeconds = secondsPart + nanosecondPart;
+
+    while (XPending(g_Display) > 0) {
+      XEvent event;
+      XNextEvent(g_Display, &event);
+      
+      if (event.type == Expose) {
+        XGetWindowAttributes(g_Display, g_Window, &g_WindowAttributes);
+        glViewport(0, 0, g_WindowAttributes.width, g_WindowAttributes.height);
+      }
+      else if (event.type == KeyPress) {
+        glXMakeCurrent(g_Display, None, nullptr);
+        glXDestroyContext(g_Display, g_GLContext);
+        XDestroyWindow(g_Display, g_Window);
+        XCloseDisplay(g_Display);
+        std::exit(0);
+      }
+    }
+
+    Game::update(elapsedSeconds);
+    gl_render_test_quad();
+    glXSwapBuffers(g_Display, g_Window);
   }
 }
