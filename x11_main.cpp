@@ -25,12 +25,19 @@ static Window g_Window;
 static GLXContext g_GLContext;
 static XWindowAttributes g_WindowAttributes;
 
+static KeyCode KC_W = 0;
+static KeyCode KC_A = 0;
+static KeyCode KC_S = 0;
+static KeyCode KC_D = 0;
+static KeyCode KC_ESC = 0;
+
 void gl_render_test_quad() {
   float fadeRatio = g_State.m_FadeRatio;
   Vec2 playerPos = g_State.m_PlayerPosition;
 
-  glClearColor(fadeRatio, fadeRatio, fadeRatio, 1.0);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glDisable(GL_BLEND);
 
   // TODO: Do not use immediate mode OpenGL.
 
@@ -44,13 +51,27 @@ void gl_render_test_quad() {
 
   glBegin(GL_QUADS);
   glColor3f(1., 0., 0.);
-  glVertex3f(-.75 + playerPos.x, -.75 + playerPos.y, 0.);
+  glVertex3f(-.1 + playerPos.x, -.1 + playerPos.y, 0.);
   glColor3f(0., 1., 0.);
-  glVertex3f(.75 + playerPos.x, -.75 + playerPos.y, 0.);
+  glVertex3f(.1 + playerPos.x, -.1 + playerPos.y, 0.);
   glColor3f(0., 0., 1.);
-  glVertex3f(.75 + playerPos.x, .75 + playerPos.y, 0.);
+  glVertex3f(.1 + playerPos.x, .1 + playerPos.y, 0.);
   glColor3f(1., 1., 0.);
-  glVertex3f(-.75 + playerPos.x, .75 + playerPos.y, 0.);
+  glVertex3f(-.1 + playerPos.x, .1 + playerPos.y, 0.);
+  glEnd();
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glBegin(GL_QUADS);
+  glColor4f(0., 0., 0., fadeRatio);
+  glVertex3f(-1.0, -1.0, 1.);
+  glColor4f(0., 0., 0., fadeRatio);
+  glVertex3f(1.0, -1.0, 1.);
+  glColor4f(0., 0., 0., fadeRatio);
+  glVertex3f(1.0, 1.0, 1.);
+  glColor4f(0., 0., 0., fadeRatio);
+  glVertex3f(-1.0, 1.0, 1.);
   glEnd();
 }
 
@@ -100,6 +121,12 @@ void x11_init(const char* window_name) {
   }
   
   glXMakeCurrent(g_Display, g_Window, g_GLContext);
+
+  KC_W = XKeysymToKeycode(g_Display, XK_w);
+  KC_A = XKeysymToKeycode(g_Display, XK_a);
+  KC_S = XKeysymToKeycode(g_Display, XK_s);
+  KC_D = XKeysymToKeycode(g_Display, XK_d);
+  KC_ESC = XKeysymToKeycode(g_Display, XK_Escape);
 }
 
 void gl_init() {
@@ -137,11 +164,28 @@ int main(int arg_count, char** args) {
         glViewport(0, 0, g_WindowAttributes.width, g_WindowAttributes.height);
       }
       else if (event.type == KeyPress) {
-        glXMakeCurrent(g_Display, None, nullptr);
-        glXDestroyContext(g_Display, g_GLContext);
-        XDestroyWindow(g_Display, g_Window);
-        XCloseDisplay(g_Display);
-        std::exit(0);
+        KeyCode kc = event.xkey.keycode;
+
+        if (kc == KC_W) {
+            g_State.m_PlayerPosition.y += elapsedSeconds;
+        }
+        if (kc == KC_S) {
+            g_State.m_PlayerPosition.y -= elapsedSeconds;
+        }
+        if (kc == KC_A) {
+            g_State.m_PlayerPosition.x -= elapsedSeconds;
+        }
+        if (kc == KC_D) {
+            g_State.m_PlayerPosition.x += elapsedSeconds;
+        }        
+        if (kc == KC_ESC) {
+          glXMakeCurrent(g_Display, None, nullptr);
+          glXDestroyContext(g_Display, g_GLContext);
+          XDestroyWindow(g_Display, g_Window);
+          XCloseDisplay(g_Display);
+          std::exit(0);
+        }        
+        
       }
     }
 
