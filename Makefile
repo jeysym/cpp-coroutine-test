@@ -1,5 +1,5 @@
-cpp_files = game.cpp timers.cpp co_task.cpp renderer.cpp x11_main.cpp stb_image.cpp
-hpp_files = game.hpp timers.hpp co_task.hpp renderer.hpp
+cpp_files = src/game.cpp src/timers.cpp src/co_task.cpp src/renderer.cpp src/x11_main.cpp src/stb_image.cpp
+hpp_files = src/game.hpp src/timers.hpp src/co_task.hpp src/renderer.hpp
 lib_hpp_files = lib/stb/stb_image.h
 
 all: cpp-coroutine-test.elf
