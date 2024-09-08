@@ -1,10 +1,6 @@
 #pragma once
 #include <cstdlib>
-
-struct Vec2 {
-  float x = 0.0f;
-  float y = 0.0f;
-};
+#include "math.hpp"
 
 struct GameState {
   // 0.0 => No fade

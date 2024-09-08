@@ -9,10 +9,12 @@
 #include <cstdlib>
 #include <time.h>
 #include <unistd.h>
+#include <map>
 
 #include "timers.hpp"
 #include "co_task.hpp"
 #include "game.hpp"
+#include "input.hpp"
 
 #include "stb/stb_image.h"
 
@@ -26,11 +28,7 @@ static Window g_Window;
 static GLXContext g_GLContext;
 static XWindowAttributes g_WindowAttributes;
 
-static KeyCode KC_W = 0;
-static KeyCode KC_A = 0;
-static KeyCode KC_S = 0;
-static KeyCode KC_D = 0;
-static KeyCode KC_ESC = 0;
+std::map<KeyCode, Input::Action> g_ActionMap;
 
 void x11_init(const char* window_name) {
   g_Display = XOpenDisplay(nullptr);
@@ -57,7 +55,7 @@ void x11_init(const char* window_name) {
   g_Colormap = XCreateColormap(g_Display, g_RootWindow, g_Visual->visual, AllocNone);
 
   g_SWA.colormap = g_Colormap;
-  g_SWA.event_mask = ExposureMask | KeyPressMask;
+  g_SWA.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask;
 
   g_Window = XCreateWindow(g_Display, g_RootWindow, 0, 0, 600, 600, 0, g_Visual->depth, InputOutput,
                       g_Visual->visual, CWColormap | CWEventMask, &g_SWA);
@@ -79,11 +77,11 @@ void x11_init(const char* window_name) {
   
   glXMakeCurrent(g_Display, g_Window, g_GLContext);
 
-  KC_W = XKeysymToKeycode(g_Display, XK_w);
-  KC_A = XKeysymToKeycode(g_Display, XK_a);
-  KC_S = XKeysymToKeycode(g_Display, XK_s);
-  KC_D = XKeysymToKeycode(g_Display, XK_d);
-  KC_ESC = XKeysymToKeycode(g_Display, XK_Escape);
+  g_ActionMap[XKeysymToKeycode(g_Display, XK_w)] = Input::Action::UP;
+  g_ActionMap[XKeysymToKeycode(g_Display, XK_s)] = Input::Action::DOWN;
+  g_ActionMap[XKeysymToKeycode(g_Display, XK_a)] = Input::Action::LEFT;
+  g_ActionMap[XKeysymToKeycode(g_Display, XK_d)] = Input::Action::RIGHT;
+  g_ActionMap[XKeysymToKeycode(g_Display, XK_Escape)] = Input::Action::QUIT;
 }
 
 int main(int arg_count, char** args) {
@@ -117,31 +115,27 @@ int main(int arg_count, char** args) {
         glViewport(0, 0, g_WindowAttributes.width, g_WindowAttributes.height);
       }
       else if (event.type == KeyPress) {
-        KeyCode kc = event.xkey.keycode;
-
-        if (kc == KC_W) {
-            g_State.m_PlayerPosition.y += elapsedSeconds;
+        auto it = g_ActionMap.find(event.xkey.keycode);
+        if (it != g_ActionMap.end()) {
+          Input::setActionActive(it->second, true);
         }
-        if (kc == KC_S) {
-            g_State.m_PlayerPosition.y -= elapsedSeconds;
+      }
+      else if (event.type == KeyRelease) {
+        auto it = g_ActionMap.find(event.xkey.keycode);
+        if (it != g_ActionMap.end()) {
+          Input::setActionActive(it->second, false);
         }
-        if (kc == KC_A) {
-            g_State.m_PlayerPosition.x -= elapsedSeconds;
-        }
-        if (kc == KC_D) {
-            g_State.m_PlayerPosition.x += elapsedSeconds;
-        }        
-        if (kc == KC_ESC) {
-          glXMakeCurrent(g_Display, None, nullptr);
-          glXDestroyContext(g_Display, g_GLContext);
-          XDestroyWindow(g_Display, g_Window);
-          XCloseDisplay(g_Display);
-          std::exit(0);
-        }        
-        
       }
     }
 
+    if (Input::getActionActive(Input::Action::QUIT)) {
+      glXMakeCurrent(g_Display, None, nullptr);
+      glXDestroyContext(g_Display, g_GLContext);
+      XDestroyWindow(g_Display, g_Window);
+      XCloseDisplay(g_Display);
+      std::exit(0);
+    }        
+    
     Game::update(elapsedSeconds);
     Renderer::render(elapsedSeconds);
     glXSwapBuffers(g_Display, g_Window);

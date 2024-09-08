@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include "co_task.hpp"
 #include "timers.hpp"
+#include "input.hpp"
 #include <iostream>
 #include <iomanip>
 #include <string_view>
@@ -55,10 +56,36 @@ CoTask co_faded_teleport(float fadeSeconds) {
   co_return;
 }
 
+void handle_input(float deltaSeconds) {
+  using namespace Input;
+  Vec2 inputVector;
+  
+  if (getActionActive(Action::UP)) {
+    inputVector.y += 1.0f;
+  }
+
+  if (getActionActive(Action::DOWN)) {
+    inputVector.y -= 1.0f;
+  }
+
+  if (getActionActive(Action::LEFT)) {
+    inputVector.x -= 1.0f;
+  }
+
+  if (getActionActive(Action::RIGHT)) {
+    inputVector.x += 1.0f;
+  }        
+
+  inputVector.normalize();
+  constexpr float movementSpeed = 0.5f;
+  g_State.m_PlayerPosition += ((movementSpeed * deltaSeconds) * inputVector);
+}
+
 void Game::update(float deltaSeconds) {
   g_CurrentFrameIdx += 1;
   g_CurrentSeconds += deltaSeconds;
 
+  handle_input(deltaSeconds);
   Timers::update(deltaSeconds);
 }
 
