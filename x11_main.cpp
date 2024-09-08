@@ -15,6 +15,8 @@
 #include "co_task.hpp"
 #include "game.hpp"
 
+#include "stb/stb_image.h"
+
 static Display *g_Display = nullptr;
 static Window g_RootWindow;
 static GLint g_AttribList[] = {GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None};
@@ -30,6 +32,12 @@ static KeyCode KC_A = 0;
 static KeyCode KC_S = 0;
 static KeyCode KC_D = 0;
 static KeyCode KC_ESC = 0;
+
+static int img_width = 0;
+static int img_height = 0;
+static int img_dim = 0;
+static char* img_data = nullptr;
+static GLuint img_texture = 0;
 
 void gl_render_test_quad() {
   float fadeRatio = g_State.m_FadeRatio;
@@ -49,17 +57,24 @@ void gl_render_test_quad() {
   glLoadIdentity();
   gluLookAt(0., 0., 10., 0., 0., 0., 0., 1., 0.);
 
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, img_texture);
+
   glBegin(GL_QUADS);
-  glColor3f(1., 0., 0.);
+
+  glColor3f(1.0f, 1.0f, 1.0f);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0f, 1.0f);
   glVertex3f(-.1 + playerPos.x, -.1 + playerPos.y, 0.);
-  glColor3f(0., 1., 0.);
+  glTexCoord2f(1.0f, 1.0f);
   glVertex3f(.1 + playerPos.x, -.1 + playerPos.y, 0.);
-  glColor3f(0., 0., 1.);
+  glTexCoord2f(1.0f, 0.0f);
   glVertex3f(.1 + playerPos.x, .1 + playerPos.y, 0.);
-  glColor3f(1., 1., 0.);
+  glTexCoord2f(0.0f, 0.0f);
   glVertex3f(-.1 + playerPos.x, .1 + playerPos.y, 0.);
   glEnd();
 
+  glDisable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -131,6 +146,21 @@ void x11_init(const char* window_name) {
 
 void gl_init() {
   glEnable(GL_DEPTH_TEST);
+
+  img_data = (char*)stbi_load("character.png", &img_width, &img_height, &img_dim, 0);
+
+  if (img_data) {
+    glGenTextures(1, &img_texture);
+    glBindTexture(GL_TEXTURE_2D, img_texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_width, img_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data);
+  }
+  else {
+    std::cerr << "Could not load the image" << std::endl;
+  }
 }
 
 int main(int arg_count, char** args) {
