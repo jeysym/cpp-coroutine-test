@@ -81,6 +81,7 @@ void x11_init(const char* window_name) {
   g_ActionMap[XKeysymToKeycode(g_Display, XK_s)] = Input::Action::DOWN;
   g_ActionMap[XKeysymToKeycode(g_Display, XK_a)] = Input::Action::LEFT;
   g_ActionMap[XKeysymToKeycode(g_Display, XK_d)] = Input::Action::RIGHT;
+  g_ActionMap[XKeysymToKeycode(g_Display, XK_space)] = Input::Action::SHOOT;
   g_ActionMap[XKeysymToKeycode(g_Display, XK_Escape)] = Input::Action::QUIT;
 }
 

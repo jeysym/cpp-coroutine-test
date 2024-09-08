@@ -76,6 +76,19 @@ void render(float deltaSeconds) {
   glVertex3f(-.1 + playerPos.x, .1 + playerPos.y, 0.);
   glEnd();
 
+  for (auto& bullet : g_State.m_Bullets) {
+    glDisable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex3f(-.01 + bullet.m_Position.x, -.01 + bullet.m_Position.y, 0.);
+    glVertex3f(.01 + bullet.m_Position.x, -.01 + bullet.m_Position.y, 0.);
+    glVertex3f(.01 + bullet.m_Position.x, .01 + bullet.m_Position.y, 0.);
+    glVertex3f(-.01 + bullet.m_Position.x, .01 + bullet.m_Position.y, 0.);
+    glEnd();
+  }
+
   glDisable(GL_TEXTURE_2D);
 
   glBegin(GL_QUADS);

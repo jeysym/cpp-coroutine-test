@@ -5,6 +5,10 @@ float Vec2::length() const {
   return std::sqrt(x*x + y*y);
 }
 
+bool Vec2::isZero() const {
+  return length() < 0.001f;
+}
+
 void Vec2::normalize() {
   if (length() > 0.001f) {
     const float len = length();
