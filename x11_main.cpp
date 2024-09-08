@@ -43,9 +43,8 @@ void gl_render_test_quad() {
   float fadeRatio = g_State.m_FadeRatio;
   Vec2 playerPos = g_State.m_PlayerPosition;
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0);
+  glClearColor(0.0f, 0.3f, 0.0f, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDisable(GL_BLEND);
 
   // TODO: Do not use immediate mode OpenGL.
 
@@ -58,6 +57,7 @@ void gl_render_test_quad() {
   gluLookAt(0., 0., 10., 0., 0., 0., 0., 1., 0.);
 
   glEnable(GL_TEXTURE_2D);
+  glEnable(GL_BLEND);
   glBindTexture(GL_TEXTURE_2D, img_texture);
 
   glBegin(GL_QUADS);
