@@ -23,7 +23,7 @@ void log_fade_ratio(std::string_view category) {
             << "] Current fade ratio: " << g_State.m_FadeRatio << std::endl;
 }
 
-CoTask co_fade_out(float duration) {
+CoTask<void> co_fade_out(float duration) {
   const float fadeStartTime = g_CurrentSeconds;
   const float fadeEndTime = g_CurrentSeconds + duration;
 
@@ -36,7 +36,7 @@ CoTask co_fade_out(float duration) {
   co_return;
 }
 
-CoTask co_fade_in(float duration) {
+CoTask<void> co_fade_in(float duration) {
   const float fadeEndTime = g_CurrentSeconds + duration;
 
   while (g_CurrentSeconds <= fadeEndTime) {
@@ -48,7 +48,7 @@ CoTask co_fade_in(float duration) {
   co_return;
 }
 
-CoTask co_faded_teleport(float fadeSeconds) {
+CoTask<void> co_faded_teleport(float fadeSeconds) {
   log("FadedTeleport", "Fade out");
   co_await co_fade_out(fadeSeconds);
   log("FadedTeleport", "Teleport");
@@ -59,7 +59,7 @@ CoTask co_faded_teleport(float fadeSeconds) {
   co_return;
 }
 
-CoTask co_bullet_spawner() {
+CoTask<void> co_bullet_spawner() {
   while (true) {
     const bool shootInput = Input::getActionActive(Input::Action::SHOOT);
     const bool playerMoving = g_State.m_InputVector.isZero() == false;
