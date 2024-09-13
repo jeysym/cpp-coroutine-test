@@ -3,9 +3,7 @@
 
 std::vector<Timers::Timer> Timers::s_Timers{};
 
-bool Timers::Timer::isDone() const {
-  return m_RemainingSeconds <= 0.0f; 
-}
+bool Timers::Timer::isDone() const { return m_RemainingSeconds <= 0.0f; }
 
 void Timers::add(float durationSeconds, callback_type callback) {
   s_Timers.push_back(
@@ -17,6 +15,8 @@ void Timers::update(float deltaSeconds) {
     timer.m_RemainingSeconds -= deltaSeconds;
 
     if (timer.isDone()) {
+      // TODO: This should probably be done out of the loop as the callback
+      // could add/remove a timer and invalidate the iterator.
       timer.m_Callback();
     }
   }
