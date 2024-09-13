@@ -1,7 +1,9 @@
 #pragma once
+#include "math.hpp"
 #include <cstdlib>
 #include <vector>
-#include "math.hpp"
+
+namespace Game {
 
 struct BulletState {
   Vec2 m_Position;
@@ -22,7 +24,7 @@ extern size_t g_CurrentFrameIdx;
 extern float g_CurrentSeconds;
 extern GameState g_State;
 
-struct Game {
-  static void init();
-  static void update(float deltaSeconds);
-};
+void init();
+void update(float deltaSeconds);
+
+} // namespace Game

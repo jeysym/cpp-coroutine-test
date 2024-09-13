@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string_view>
 
+namespace Game {
+
 constexpr float PLAYER_SPEED = 0.5f;
 constexpr float BULLET_SPEED = 2.0f;
 
@@ -18,12 +20,7 @@ void log(std::string_view category, std::string_view message) {
             << std::endl;
 }
 
-void log_fade_ratio(std::string_view category) {
-  std::cout << "[" << g_CurrentSeconds << "s][" << category
-            << "] Current fade ratio: " << g_State.m_FadeRatio << std::endl;
-}
-
-CoTask<void> co_fade_out(float duration) {
+CoTask<void> coFadeOut(float duration) {
   const float fadeStartTime = g_CurrentSeconds;
   const float fadeEndTime = g_CurrentSeconds + duration;
 
@@ -36,7 +33,7 @@ CoTask<void> co_fade_out(float duration) {
   co_return;
 }
 
-CoTask<void> co_fade_in(float duration) {
+CoTask<void> coFadeIn(float duration) {
   const float fadeEndTime = g_CurrentSeconds + duration;
 
   while (g_CurrentSeconds <= fadeEndTime) {
@@ -48,20 +45,23 @@ CoTask<void> co_fade_in(float duration) {
   co_return;
 }
 
-CoTask<void> co_faded_teleport(float fadeSeconds) {
+CoTask<void> coFadedTeleport(float fadeSeconds) {
   log("FadedTeleport", "Fade out");
-  co_await co_fade_out(fadeSeconds);
+  co_await coFadeOut(fadeSeconds);
+
   log("FadedTeleport", "Teleport");
   g_State.m_PlayerPosition = {0.5f, 0.5f};
+
   log("FadedTeleport", "Fade in");
-  co_await co_fade_in(fadeSeconds);
+  co_await coFadeIn(fadeSeconds);
+
   log("FadedTeleport", "Done");
   co_return;
 }
 
-CoTask<void> co_bullet_spawner() {
+CoTask<void> coBulletScript() {
   while (true) {
-    co_await Input::CoActionTrigger{ Input::Action::SHOOT };
+    co_await Input::CoActionTrigger{Input::Action::SHOOT};
     const bool playerMoving = g_State.m_InputVector.isZero() == false;
 
     if (playerMoving) {
@@ -75,7 +75,7 @@ CoTask<void> co_bullet_spawner() {
   }
 }
 
-void handle_input(float deltaSeconds) {
+void handleInput(float deltaSeconds) {
   using namespace Input;
   Vec2 inputVector;
 
@@ -124,21 +124,23 @@ void simulateObjects(float deltaSeconds) {
       bullets.end());
 }
 
-void Game::update(float deltaSeconds) {
+void update(float deltaSeconds) {
   g_CurrentFrameIdx += 1;
   g_CurrentSeconds += deltaSeconds;
 
-  handle_input(deltaSeconds);
+  handleInput(deltaSeconds);
   simulateObjects(deltaSeconds);
   Timers::update(deltaSeconds);
 }
 
-void Game::init() {
+void init() {
   std::cout << std::fixed << std::setprecision(2);
 
   Timers::add(2.0f, []() { log("Timer", "2 seconds"); });
   Timers::add(1.0f, []() { log("Timer", "1 second"); });
   Timers::add(8.0f, []() { log("Timer", "8 seconds"); });
-  Timers::add(1.0f, []() { co_faded_teleport(4.0f); });
-  co_bullet_spawner();
+  Timers::add(1.0f, []() { coFadedTeleport(4.0f); });
+  coBulletScript();
 }
+
+} // namespace Game

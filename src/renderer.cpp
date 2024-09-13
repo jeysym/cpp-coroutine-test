@@ -1,8 +1,8 @@
 #include "renderer.hpp"
 #include "game.hpp"
 #include "stb/stb_image.h"
-#include <iostream>
 #include <GL/glu.h>
+#include <iostream>
 
 namespace Renderer {
 
@@ -42,8 +42,8 @@ void init() {
 }
 
 void render(float deltaSeconds) {
-  float fadeRatio = g_State.m_FadeRatio;
-  Vec2 playerPos = g_State.m_PlayerPosition;
+  float fadeRatio = Game::g_State.m_FadeRatio;
+  Vec2 playerPos = Game::g_State.m_PlayerPosition;
 
   glClearColor(0.0f, 0.3f, 0.0f, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,7 +76,7 @@ void render(float deltaSeconds) {
   glVertex3f(-.1 + playerPos.x, .1 + playerPos.y, 0.);
   glEnd();
 
-  for (auto& bullet : g_State.m_Bullets) {
+  for (auto &bullet : Game::g_State.m_Bullets) {
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
 

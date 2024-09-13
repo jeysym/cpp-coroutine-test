@@ -81,21 +81,3 @@ struct CoTask<void> {
   handle_type m_Handle = nullptr;
 };
 
-struct CoWait {
-  float m_DurationSeconds = 0.0f;
-
-  CoWait(float durationSeconds);
-  bool await_ready();
-  void await_resume();
-  void await_suspend(std::coroutine_handle<> handle);
-
-  template <typename THandle> void await_suspend(THandle handle) {
-    Timers::add(m_DurationSeconds, [handle]() { handle.resume(); });
-  }
-};
-
-struct CoWaitFrame {
-  bool await_ready();
-  void await_resume();
-  void await_suspend(std::coroutine_handle<> handle);
-};
