@@ -61,18 +61,16 @@ CoTask<void> co_faded_teleport(float fadeSeconds) {
 
 CoTask<void> co_bullet_spawner() {
   while (true) {
-    const bool shootInput = Input::getActionActive(Input::Action::SHOOT);
+    co_await Input::CoActionTrigger{ Input::Action::SHOOT };
     const bool playerMoving = g_State.m_InputVector.isZero() == false;
 
-    if (shootInput && playerMoving) {
+    if (playerMoving) {
       BulletState bullet;
       bullet.m_Position = g_State.m_PlayerPosition;
       bullet.m_Velocity = BULLET_SPEED * g_State.m_InputVector;
       g_State.m_Bullets.push_back(bullet);
 
       co_await CoWait{0.5f};
-    } else {
-      co_await CoWaitFrame{};
     }
   }
 }
