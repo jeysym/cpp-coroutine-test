@@ -1,3 +1,5 @@
 *.elf
 .cache/
 compile_commands.json
+zig-cache/
+zig-out/
