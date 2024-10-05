@@ -38,7 +38,7 @@ void init() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glEnable(GL_TEXTURE_2D);
-  characterTexture = Texture::loadFromFile("character.png").value();
+  characterTexture = Texture::loadFromFile("res/images/character.png").value();
 }
 
 void render(float deltaSeconds) {
