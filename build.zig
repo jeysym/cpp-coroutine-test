@@ -21,9 +21,9 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    exe.addIncludePath(std.Build.LazyPath.relative("lib"));
+    exe.addIncludePath(b.path("lib"));
 
-    exe.addCSourceFiles(&.{
+    exe.addCSourceFiles(.{ .files = &.{
         "src/game.cpp",
         "src/timers.cpp",
         "src/co_task.cpp",
@@ -32,10 +32,10 @@ pub fn build(b: *std.Build) void {
         "src/math.cpp",
         "src/stb_image.cpp",
         "src/x11_main.cpp",
-    }, &.{
+    }, .flags = &.{
         "-Wall",
         "-std=c++20",
-    });
+    } });
 
     exe.linkLibCpp();
     exe.linkSystemLibrary("X11");

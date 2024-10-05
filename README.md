@@ -33,3 +33,5 @@ The project uses Zig as its build system. Build & run it like this:
 
     $zig build
     $zig build run
+
+The build was tested to work with Zig 0.13.
